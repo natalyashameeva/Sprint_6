@@ -1,5 +1,6 @@
 import pytest
 from page_objects.order_page import OrderPage
+from constants import YANDEX_DZEN_URL
 
 
 class TestOrder:
@@ -24,19 +25,21 @@ class TestOrder:
         # Оформление заказа и проверка
         order_page.submit_order()
         order_page.confirmation_order()
-
-        assert driver.find_element(*order_page.success_modal).is_displayed()
+        order_page.verify_success_modal()
 
         order_page.order_status()
+        order_page.verify_cancel_button()
 
         # Проверяем переход на главную страницу при клике на логотип Самоката
         order_page.click_scooter_logo()
+        order_page.verify_home_header()
 
     def test_yandex_logo(self, driver):
         order_page = OrderPage(driver)
         order_page.accept_cookies()
         # Проверяем открытие нового окна при клике на логотип Яндекса
-        order_page.click_yandex_logo()
+        new_window_url = order_page.click_yandex_logo()
+        assert new_window_url == YANDEX_DZEN_URL
 
 
 

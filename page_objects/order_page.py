@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from constants import BASE_URL, YANDEX_DZEN_URL
 
 class OrderPage:
     def __init__(self, driver):
@@ -28,18 +29,32 @@ class OrderPage:
     black_scooter_checkbox = (By.ID, 'black')
     grey_scooter_checkbox = (By.ID, 'grey')
 
-    # Локаторы оформления заказа
+    # Локаторы для оформления и проверки заказа
     submit_button = (By.CSS_SELECTOR, 'button[class*="Button"]:nth-of-type(2)')
     confirmation_order_button = (By.XPATH, '//button[text()="Да"]')
     order_status_button = (By.XPATH, '//button[text()="Посмотреть статус"]')
+    cancel_order_button = (By.XPATH, "//button[contains(text(), 'Отменить заказ')]")
 
     # Локатор для кнопки принятия куки и логотипов
     cookie_accept_button = (By.ID, 'rcc-confirm-button')
     scooter_logo = (By.XPATH, '//img[@alt="Scooter"]')
     yandex_logo = (By.XPATH, '//img[@alt="Yandex"]')
+    home_header = (By.XPATH, '//div[@class="Home_Header__iJKdX"]')
 
     # Локатор для модального окна после успешного оформления
     success_modal = (By.CLASS_NAME, 'Order_Modal__YZ-d3')
+
+    # Метод для проверки видимости модального окна
+    def verify_success_modal(self):
+        assert self.driver.find_element(*self.success_modal).is_displayed()
+
+    # Проверяем отображение кнопки отмены заказа
+    def verify_cancel_button(self):
+        assert self.driver.find_element(*self.cancel_order_button).is_displayed()
+
+    # Проверяем заголовок на главной странице
+    def verify_home_header(self):
+        assert self.driver.find_element(*self.home_header).is_displayed()
 
     def click_order_button(self, top_button=True):
         if top_button:
@@ -100,6 +115,7 @@ class OrderPage:
     def order_status(self):
         self.driver.find_element(*self.order_status_button).click()
 
+
     def accept_cookies(self):
         try:
             self.driver.find_element(*self.cookie_accept_button).click()
@@ -109,7 +125,7 @@ class OrderPage:
     def click_scooter_logo(self):
         self.driver.find_element(*self.scooter_logo).click()
         WebDriverWait(self.driver, 10).until(
-            EC.url_to_be("https://qa-scooter.praktikum-services.ru/")
+            EC.url_to_be(BASE_URL)
         )
 
     def click_yandex_logo(self):
@@ -123,5 +139,6 @@ class OrderPage:
         new_window = [window for window in self.driver.window_handles if window != main_window][0]
         self.driver.switch_to.window(new_window)
         WebDriverWait(self.driver, 10).until(
-            EC.url_to_be("https://dzen.ru/?yredirect=true")
+            EC.url_to_be(YANDEX_DZEN_URL)
         )
+        return self.driver.current_url

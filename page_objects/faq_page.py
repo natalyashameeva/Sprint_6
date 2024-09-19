@@ -28,6 +28,9 @@ class FAQPage:
         (By.ID, 'accordion__panel-7')
     ]
 
+    def scroll_to_bottom(self):
+        self.driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
     def click_question_and_check_answer(self, question_index):
         self.driver.find_element(*self.question_locators[question_index]).click()
 
